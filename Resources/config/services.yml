@@ -1,0 +1,6 @@
+parameters:
+    uid_user_provider.class: L3\Bundle\UidUserBundle\Services\UidUserProvider
+
+services:
+    uid_user_provider:
+        class: "%uid_user_provider.class%"

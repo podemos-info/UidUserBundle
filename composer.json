@@ -1,0 +1,24 @@
+{
+    "name": "l3/uid-user-bundle",
+    "type": "symfony-bundle",
+    "description": "User Provider for CAS (return only the UID)",
+    "homepage": "",
+    "license": "(c) Copyright Universite Lille3 - Charles de Gaulle",
+    "authors": [
+        {
+            "name": "Mathieu Hétru",
+            "email": "mathieu.hetru@univ-lille3.fr"
+        }
+    ],
+    "require": {
+        "php": ">=5.4",
+        "symfony/http-foundation": "~2.1",
+        "symfony/security": "~2.1",
+        "symfony/routing": "~2.1"
+    },
+    "autoload": {
+        "psr-4": { "L3\\Bundle\\UidUserBundle\\": "" }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
