@@ -1,21 +1,14 @@
-Fournisseur d'identité depuis le CAS UDL
+User Provider for CAS
 
-Permet d'utiliser uniquement CAS UDL comme fournisseur d'utilisateur pour obtenir que le UID dans une application Symfony2
+Allow use only UID for application Symfony2
 
-Installation du Bundle.
+Installation of the Bundle
 ---
-L'installation du Bundle se fait via packagist (et donc composer.json). Vérifier que le serveur packagist de Lille3 et bien configuré par la présence du bloc suivant dans votre fichier composer.json :
-```
-    "repositories": [{
-        "type": "composer",
-        "url": "https://packagist.univ-lille3.fr/"
-    }]
-```
-Puis vous pouvez installer facilement le Bundle en ajoutant cette ligne dans la partie require :
+Simple add this line in the require in your composer.json :
 ```
 "l3/uid-user-bundle": "~1.0"
 ```
-Lancer la commande **composer update** pour installer le package puis il faut ensuite ajouter le Bundle à AppKernel.php
+Launch the command **composer update** to install the package and add the Bundle in the AppKernel.php file.
 ```
 <?php
 // app/AppKernel.php
@@ -38,9 +31,9 @@ class AppKernel extends Kernel
 }
 ```
 
-Configuration du bundle
+Configuration of the bundle
 ---
-Dans le pare-feu pour utiliser l'user provider du Bundle :
+In the firewall of your application, use the Bundle :
 ```
 # app/config/security.yml
 security:
