@@ -13,7 +13,7 @@ class UidUserProvider implements UserProviderInterface {
     public function loadUserByUsername($username) {
         $user = $user = new UidUser();
         $user->setUid($username);
-        
+	$user->updateRoles();        
         return $user;
     }
 
