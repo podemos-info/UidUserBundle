@@ -2,7 +2,7 @@
     "name": "l3/uid-user-bundle",
     "type": "symfony-bundle",
     "description": "User Provider for CAS (return only the UID)",
-    "homepage": "https://github.com/mhetru/UidUserBundle",
+    "homepage": "https://github.com/l3-team/UidUserBundle",
     "license": "(c) Copyright Universite Lille3 - Charles de Gaulle",
     "authors": [
         {
