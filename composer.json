@@ -15,7 +15,7 @@
         "symfony/http-foundation": "~3.1",
         "symfony/security": "~3.1",
         "symfony/routing": "~3.1",
-        "symfony/symfony": "~3,<=3.3"
+        "symfony/symfony": "~3.3"
     },
     "autoload": {
         "psr-4": { "L3\\Bundle\\UidUserBundle\\": "" }
