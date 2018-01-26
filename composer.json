@@ -3,7 +3,7 @@
     "type": "symfony-bundle",
     "description": "User Provider for CAS (return only the UID)",
     "homepage": "https://github.com/l3-team/UidUserBundle",
-    "license": "(c) Copyright Universite Lille3 - Charles de Gaulle",
+    "license": "LGPL-3.0-or-later",
     "authors": [
         {
             "name": "Mathieu Hétru",
