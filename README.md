@@ -38,6 +38,6 @@ In the firewall of your application, use the Bundle :
 # app/config/security.yml
 security:
     providers:
-            ldap:
-                id: uid_user_provider
+        uid:
+            id: uid_user_provider
 ```
