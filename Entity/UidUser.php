@@ -11,8 +11,8 @@ class UidUser implements UserInterface {
     protected $uid;
     private $roles = array();
 
-    public function updateRoles() {        
-        $this->roles = array('ROLE_USER');
+    public function updateRoles(array $rolesConfig = array()) {        
+        $this->roles = $rolesConfig;
         return; 
     }
 
