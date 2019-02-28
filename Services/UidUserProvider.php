@@ -5,8 +5,9 @@ namespace L3\Bundle\UidUserBundle\Services;
 use L3\Bundle\UidUserBundle\Entity\UidUser;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
+use Mautic\UserBundle\Security\Provider\UserProvider;
 
-class UidUserProvider implements UserProviderInterface {
+class UidUserProvider extends UserProvider implements UserProviderInterface {
 
     public function __construct() {}
 

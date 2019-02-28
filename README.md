@@ -1,4 +1,4 @@
-User Provider for CAS
+Mautic User Provider for CAS
 
 Allow use only UID (returned by CasBundle) for application Symfony2, Symfony3 and Symfony4
 (uid is the id user returned by jasig cas sso server and by the l3-team/CasBundle (repository github) or l3/cas-bundle (repository packagist))
