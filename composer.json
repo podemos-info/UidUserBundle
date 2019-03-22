@@ -21,7 +21,9 @@
         "php": ">=5.5",
         "symfony/http-foundation": "~2.1",
         "symfony/security": "~2.1",
-        "symfony/routing": "~2.1"
+        "symfony/routing": "~2.1",
+        "tcdent/php-restclient": "dev-master",
+        "leaseweb/memcache-bundle": "*"
     },
     "repositories": [
     {

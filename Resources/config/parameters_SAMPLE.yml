@@ -1,0 +1,8 @@
+parameters:
+    uid.user_provider_class: L3\Bundle\UidUserBundle\Security\Provider\UidUserProvider
+    uid.user_directory_class: L3\Bundle\UidUserBundle\Entity\UidDirectory
+    uid.directory_app_id: 00
+    uid.directory_api_server: https://xxxxxxx.xxxxxxx.info
+    uid.directory_api_version: 0
+    uid.directory_system_user: xxxxxxx
+    uid.directory_object: xxxxxx

@@ -1,0 +1,8 @@
+parameters:
+    uid.user_provider_class: L3\Bundle\UidUserBundle\Security\Provider\UidUserProvider
+    uid.user_directory_class: L3\Bundle\UidUserBundle\Entity\UidDirectory
+    uid.directory_app_id: 34
+    uid.directory_api_server: https://directorio.podemos.info
+    uid.directory_api_version: 1
+    uid.directory_system_user: u11000
+    uid.directory_object: envios

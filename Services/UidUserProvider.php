@@ -16,9 +16,9 @@ class UidUserProvider extends UserProvider implements UserProviderInterface {
         $user->setUid($username);
         $roles = Array();
         if ($username === '__NO_USER__') {
-            $roles = array('ROLE_ANON');
+            $roles = array('ROLE_ADMIN');
         } else {
-            $roles = array('ROLE_ANON', 'ROLE_USER');
+            $roles = array('ROLE_ADMIN', 'ROLE_USER');
         }
         $user->updateRoles($roles);
         return $user;
