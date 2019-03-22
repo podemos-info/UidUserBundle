@@ -18,7 +18,18 @@ class Configuration implements ConfigurationInterface
     public function getConfigTreeBuilder()
     {
         $treeBuilder = new TreeBuilder();
-        $rootNode = $treeBuilder->root('l3_security');
+        $rootNode = $treeBuilder->root('uid');
+
+        $rootNode
+            ->children()
+            ->scalarNode('user_provider_class')->defaultValue("L3\Bundle\UidUserBundle\Security\Provider\UidUserProvider")->end()
+            ->scalarNode('user_directory_class')->defaultValue('L3\Bundle\UidUserBundle\Entity\UidDirectory')->end()
+            ->scalarNode('directory_app_id')->end()
+            ->scalarNode('directory_api_server')->end()
+            ->scalarNode('directory_api_version')->end()
+            ->scalarNode('directory_system_user')->end()
+            ->scalarNode('directory_object')->end()
+            ->end();
         
         return $treeBuilder;
     }

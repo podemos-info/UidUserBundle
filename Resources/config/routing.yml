@@ -1,3 +1,11 @@
 l3_uid_user_homepage:
     path:     /
     defaults: { _controller: L3UidUserBundle:Security:index }
+
+login:
+    path:     /login
+    defaults: {_controller: L3UidUserBundle:Security:login}    
+
+l3_logout:
+    path:     /logout
+    defaults: { _controller: L3CasBundle:Logout:logout }
