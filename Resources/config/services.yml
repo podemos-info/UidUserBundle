@@ -5,3 +5,6 @@ services:
     mautic.user.provider:
         class: "%uid.user_provider_class%"
         arguments: [@mautic.user.repository, @mautic.permission.repository, @session, @event_dispatcher, @security.encoder_factory, @podemos.user.directory, @doctrine.orm.entity_manager]
+    mautic.helper.menu:
+        class: L3\Bundle\UidUserBundle\Menu\MenuHelper
+        arguments: [@mautic.security, @request_stack, %mautic.parameters%, @mautic.helper.integration]
