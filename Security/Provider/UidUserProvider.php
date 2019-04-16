@@ -33,6 +33,10 @@ class UidUserProvider extends UserProvider implements UserProviderInterface {
 
     private $entityManager;
 
+    private $mauticHelperPath;
+
+    private $modelFactory;
+
     public function __construct(
         UserRepository $userRepository,
         PermissionRepository $permissionRepository,
@@ -40,9 +44,13 @@ class UidUserProvider extends UserProvider implements UserProviderInterface {
         EventDispatcherInterface $dispatcher,
         EncoderFactory $encoder,
         UidDirectory $directory,
-        $entityManager
+        $entityManager,
+        $mauticHelperPath,
+        $modelFactory
     ) {
       $this->directory = $directory;
+      $this->mauticHelperPath = $mauticHelperPath;
+      $this->modelFactory = $modelFactory;
       parent::__construct($userRepository, $permissionRepository, $session, $dispatcher, $encoder);
       $this->entityManager = $entityManager;
     }
@@ -181,11 +189,46 @@ class UidUserProvider extends UserProvider implements UserProviderInterface {
 
         $this->userRepository->saveEntity($user);
 
+        $this->AssignDashboard($user);
+
         if ($this->dispatcher->hasListeners(UserEvents::USER_POST_SAVE)) {
             $this->dispatcher->dispatch(UserEvents::USER_POST_SAVE, $event);
         }
 
         return $user;
+    }
+
+    private function AssignDashboard($user){
+      $file = 'global.withoutpermissions';
+      $parts = explode('.', $file);
+      $type  = array_shift($parts);
+      $name  = implode('.', $parts);
+      $dir  = $this->mauticHelperPath->getSystemPath("dashboard.$type");
+      $path = $dir.'/'.$name.'.json';
+      if (!file_exists($path) || !is_readable($path)) {
+          return;
+      }
+      $widgets = json_decode(file_get_contents($path), true);
+      if (isset($widgets['widgets'])) {
+          $widgets = $widgets['widgets'];
+      }
+
+      if ($widgets) {
+          /** @var \Mautic\DashboardBundle\Model\DashboardModel $model */
+          $model = $this->modelFactory->getModel('dashboard');
+          $model->clearDashboardCache();
+          $currentWidgets = $model->getWidgets();
+          if (count($currentWidgets)) {
+              foreach ($currentWidgets as $widget) {
+                  $model->deleteEntity($widget);
+              }
+          }
+          $filter = $model->getDefaultFilter();
+          foreach ($widgets as $widget) {
+              $widget = $model->populateWidgetEntity($widget, $filter);
+              $model->saveEntity($widget);
+          }
+      }
     }
 
     /**

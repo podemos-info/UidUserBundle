@@ -4,7 +4,7 @@ services:
         arguments: [%uid.directory_app_id%, %uid.directory_api_server%, %uid.directory_api_version%, %uid.directory_system_user%, %uid.directory_object%]   
     mautic.user.provider:
         class: "%uid.user_provider_class%"
-        arguments: [@mautic.user.repository, @mautic.permission.repository, @session, @event_dispatcher, @security.encoder_factory, @podemos.user.directory, @doctrine.orm.entity_manager]
+        arguments: [@mautic.user.repository, @mautic.permission.repository, @session, @event_dispatcher, @security.encoder_factory, @podemos.user.directory, @doctrine.orm.entity_manager, @mautic.helper.paths, @mautic.model.factory]
     mautic.helper.menu:
         class: L3\Bundle\UidUserBundle\Menu\MenuHelper
         arguments: [@mautic.security, @request_stack, %mautic.parameters%, @mautic.helper.integration]
