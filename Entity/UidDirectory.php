@@ -142,7 +142,7 @@ class UidDirectory
     $key = md5(serialize($params));
 
     $cache_data = $this->cache->getItem($key);
-    if ($cache_data->isHit()) {
+    if ($cache_data->isHit() && !empty($cache_data->get()) && !empty($cache_data->get()->decoded_response)) {
       return $cache_data->get();
     }
     require_once $_SERVER['DOCUMENT_ROOT'] . "/vendor/tcdent/php-restclient/restclient.php";
@@ -151,9 +151,11 @@ class UidDirectory
     if ($result->info->http_code == 200) {
       $results = $result->decode_response();
       $cache_data->set($results);
+      //dump($result);
       $this->cache->save($cache_data);
       return $results;
     } else {
+      //dump($result);
       return null;
     }
   }
@@ -197,9 +199,9 @@ class UidDirectory
 
   public function get_actions($username)
   {
-    $permissions = $this->get_data($username, "permisos", $location = null, $action = null, $object = $this->get_object());
+    $permissions = $this->get_data($username, "permisos", $location = null, $action = null, $object = null);
     if ($permissions) {
-      return array_map(function ($permission) {return $permission->accion;}, $permissions);
+      return array_map(function ($permission) {return $permission->accion."-".$permission->objeto;}, $permissions);
     } else {
       return [];
     }

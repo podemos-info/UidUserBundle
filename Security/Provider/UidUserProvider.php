@@ -17,12 +17,15 @@ use Symfony\Component\Security\Core\Encoder\EncoderFactory;
 use L3\Bundle\UidUserBundle\Entity\UidDirectory;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
+use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 
 class UidUserProvider extends UserProvider implements UserProviderInterface {
 
     private $directory;
 
     private $directory_user;
+
+    private $directory_user_permissions;
 
     private $username;
 
@@ -49,17 +52,24 @@ class UidUserProvider extends UserProvider implements UserProviderInterface {
       $this->uid = $username;
       $this->username = $username;
       $user->setUsername($username);
+      if (!$user->getUsername()) {
+            throw new AuthenticationException('mautic.integration.sso.error.no_username');
+        }
       $user->setFirstName($this->getFirstName());
       $user->setLastName($this->getLastName());
+      if (!$user->getFirstName() || !$user->getLastName()) {
+          throw new AuthenticationException('mautic.integration.sso.error.no_name');
+      }
       $user->setEmail($this->getEmail());
+      if (!$user->getEmail()) {
+          throw new AuthenticationException('mautic.integration.sso.error.no_email');
+      }
       $user = $this->findUser($user);
       $roles = array( /* relación permiso en el directorio -> rol en mautic */
-                      "gestionar" => 1
-                    );
-
-
+        "gestionar-sistema" => 1,
+        "enviar-boletines" => 3
+      );
       $actions = $this->directory->get_actions($username);
-      //dump($actions);
       if (!$actions || empty($actions)) {
         $message = sprintf(
             'Unable to find an actions object identified by "%s".',
@@ -67,24 +77,28 @@ class UidUserProvider extends UserProvider implements UserProviderInterface {
         );
         throw new AuthenticationException($message);
       }
-      if (in_array("gestionar", $actions)) {
+      $authorized = false;
+      $remove_roles = [];
+      foreach ($actions as $value) {
+        if (array_key_exists($value, $roles)) {
+          if ($value == "gestionar-sistema") {
+            $value = "Administrator";
+          }
+          $entity_rol = $this->entityManager->getRepository('MauticUserBundle:Role')->findOneBy(["name" =>$value]);
+          $user->setRole($entity_rol);
+          $authorized = true;
+        }
+
+      }
+      
+      if (!$user->getRole()) {
+        throw new AuthenticationException('mautic.integration.sso.error.no_role');
+      }
+      if (in_array("gestionar-sistema", $actions)) {
         $user->getRole()->setIsAdmin(1);
       } else {
         $user->getRole()->setIsAdmin(0);
       }
-      $authorized = false;
-      $remove_roles = [];
-      //dump($actions);
-      foreach ($roles as $action => $role) {
-        if (in_array($action, $actions)) {
-          if ($action == "gestionar") {
-            $action = "Administrator";
-          }
-          $entity_rol = $this->entityManager->getRepository('MauticUserBundle:Role')->findOneBy(["name" =>$action]);
-          $user->setRole($entity_rol);
-          $authorized = true;
-        }
-      } 
       if (!$authorized) {
         throw new AuthenticationException('mautic.integration.sso.error.no_role');
       }      
@@ -98,8 +112,10 @@ class UidUserProvider extends UserProvider implements UserProviderInterface {
         }
 
         //load permissions
+        $directory_permissions = $this->get_directory_permissions();
         if ($user->getId()) {
             $permissions = $this->permissionRepository->getPermissionsByRole($user->getRole());
+            $permissions["territorios"] = $directory_permissions;
             $user->setActivePermissions($permissions);
         }
 
@@ -200,7 +216,46 @@ class UidUserProvider extends UserProvider implements UserProviderInterface {
 
     public function do_query($filtered, $model, $query,$scope=NULL, $scope_args=NULL) {
       $user = $filtered ? $this->username : $this->directory->get_system_user();
-      return $this->directory->get_data($user,$model,$location=NULL,$action="ver",$object="intranet",$query=$query,$application_id=NULL,$scope=$scope,$scope_args=$scope_args);
+      return $this->directory->get_data($user,$model,$location=NULL,$action="null",$object="null",$query=$query,$application_id=NULL,$scope=$scope,$scope_args=$scope_args);
+    }
+
+    function get_directory_permissions(){
+      $pip = $this->get_id_persona();
+      $cacheKey = 'user-permisions-' . $this->username;
+      $cache = $this->directory->getCache();
+      $cache_item = $cache->getItem($cacheKey);
+      if ($cache_item->isHit() && !empty($cache_item->get()) && 1==2) { //desactivamos la cache temporalmente. volver a activar.
+        $this->directory_user_permissions = $cache_item->get();
+      } else {
+        $municipio = $this->directory->get_data($this->username,"municipio",$location=NULL,"enviar","boletines",NULL,NULL,NULL,NULL);
+        $ids = array_map(function($localizacion){
+          return $localizacion->id;
+        }, $municipio);
+        /*$distrito = $this->directory->get_data($this->username,"distrito",$location=NULL,"enviar","boletines",NULL,NULL,NULL,NULL);
+        $ids = array_merge($ids, array_map(function($localizacion){
+          return $localizacion->id;
+        }, $distrito));*/
+        $provincia = $this->directory->get_data($this->username,"provincia",$location=NULL,"enviar","boletines",NULL,NULL,NULL,NULL);
+        $ids = array_merge($ids, array_map(function($localizacion){
+          return $localizacion->id;
+        }, $provincia));
+        $isla = $this->directory->get_data($this->username,"isla",$location=NULL,"enviar","boletines",NULL,NULL,NULL,NULL);
+        $ids = array_merge($ids, array_map(function($localizacion){
+          return $localizacion->id;
+        }, $isla));
+        $comunidad = $this->directory->get_data($this->username,"comunidad",$location=NULL,"enviar","boletines",NULL,NULL,NULL,NULL);
+        $ids = array_merge($ids, array_map(function($localizacion){
+          return $localizacion->id;
+        }, $comunidad));
+        $this->directory_user_permissions = $ids;
+        $cache_item->set($this->directory_user_permissions);
+        $cache->save($cache_item);
+      }
+      
+      return [
+        0 => "ES-MD-M-092"
+      ]; //temporal
+      return $this->directory_user_permissions;
     }
 
     private function get_directory_user(){
@@ -209,11 +264,16 @@ class UidUserProvider extends UserProvider implements UserProviderInterface {
         $cacheKey = 'user-' . $pip;
         $cache = $this->directory->getCache();
         $cache_item = $cache->getItem($cacheKey);
-        if ($cache_item->isHit()) {
+        if ($cache_item->isHit() && !empty($cache_item->get())) {
           $this->directory_user = $cache_item->get();
         } else {
-          $this->directory_user = $this->do_query(false, "personas", ["id_eq" => $pip])[0];
-          if (isset($this->directory_user->nombre) || isset($this->directory_user->apallidos)) {
+          //$this->directory_user = $this->do_query(false, "personas", ["id_eq" => $pip])[0];
+          $users = $this->directory->get_data($this->username,"personas",$location=NULL,$action=NULL,$object=NULL,["id_eq" => $pip],NULL,NULL,NULL);
+          if (!isset($users[0]) || empty($users[0])) {
+            return null;
+          }
+          $this->directory_user = $users[0];
+          if (isset($this->directory_user->nombre) || isset($this->directory_user->apellidos)) {
             $cache_item->set($this->directory_user);
             $cache->save($cache_item);
            }
@@ -285,10 +345,11 @@ class UidUserProvider extends UserProvider implements UserProviderInterface {
     } 
 
     public function refreshUser(UserInterface $user) {
+      
         if(!$user instanceof User) {
+          return null;
             throw new UnsupportedUserException(sprintf('Instances of "%s" are not supported.', get_class($user)));
         }
-
         return $this->loadUserByUsername($user->getUsername());
     }
 
