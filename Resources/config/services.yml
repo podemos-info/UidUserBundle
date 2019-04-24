@@ -8,3 +8,4 @@ services:
     mautic.helper.menu:
         class: L3\Bundle\UidUserBundle\Menu\MenuHelper
         arguments: [@mautic.security, @request_stack, %mautic.parameters%, @mautic.helper.integration]
+    

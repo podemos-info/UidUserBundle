@@ -186,9 +186,9 @@ class UidUserProvider extends UserProvider implements UserProviderInterface {
         if ($this->dispatcher->hasListeners(UserEvents::USER_PRE_SAVE)) {
             $event = $this->dispatcher->dispatch(UserEvents::USER_PRE_SAVE, $event);
         }
-
+       
+        $user->setLocale('es');
         $this->userRepository->saveEntity($user);
-
         $this->AssignDashboard($user);
 
         if ($this->dispatcher->hasListeners(UserEvents::USER_POST_SAVE)) {
